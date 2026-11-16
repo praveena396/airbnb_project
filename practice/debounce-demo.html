@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Debounce Demo</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+    input { width: 100%; padding: 10px; font-size: 16px; margin-bottom: 20px; }
+    .card { border: 1px solid #ccc; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .card h3 { margin: 0 0 4px; }
+    .card p { margin: 0; color: #555; }
+  </style>
+</head>
+<body>
+  <h2>Search Homes (debounced, 300ms)</h2>
+  <p>Open DevTools console (F12), then type quickly in the box below.</p>
+  <input type="text" id="home-search-input" placeholder="Search by name or location..." />
+
+  <div data-home-card data-name="Cozy Cabin" data-location="Aspen">
+    <div class="card"><h3>Cozy Cabin</h3><p>Aspen</p></div>
+  </div>
+  <div data-home-card data-name="Beach House" data-location="Goa">
+    <div class="card"><h3>Beach House</h3><p>Goa</p></div>
+  </div>
+  <div data-home-card data-name="Mountain Lodge" data-location="Manali">
+    <div class="card"><h3>Mountain Lodge</h3><p>Manali</p></div>
+  </div>
+  <div data-home-card data-name="City Apartment" data-location="Mumbai">
+    <div class="card"><h3>City Apartment</h3><p>Mumbai</p></div>
+  </div>
+  <div data-home-card data-name="Cabin by the Lake" data-location="Nainital">
+    <div class="card"><h3>Cabin by the Lake</h3><p>Nainital</p></div>
+  </div>
+
+  <script src="../airbnb_project(mern stack)/public/js/home-search.js"></script>
+</body>
+</html>

@@ -8,8 +8,30 @@
  */
 
 function promiseAll(promisesArray) {
-  // TODO: implement
-  throw new Error("not implemented");
+  return new Promise((resolve, reject) => {
+    if (promisesArray.length === 0) {
+      resolve([]);
+      return;
+    }
+
+    const results = new Array(promisesArray.length);
+    let completedCount = 0;
+
+    promisesArray.forEach((p, index) => {
+      Promise.resolve(p).then(
+        (value) => {
+          results[index] = value;
+          completedCount++;
+          if (completedCount === promisesArray.length) {
+            resolve(results);
+          }
+        },
+        (reason) => {
+          reject(reason);
+        }
+      );
+    });
+  });
 }
 
 module.exports = { promiseAll };

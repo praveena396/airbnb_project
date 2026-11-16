@@ -11,8 +11,14 @@
  */
 
 function debounce(fn, delay) {
-  // TODO: implement
-  throw new Error("not implemented");
+  let timeoutId;
+
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      fn.apply(this, args);
+    }, delay);
+  };
 }
 
 module.exports = { debounce };

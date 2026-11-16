@@ -10,8 +10,17 @@
  */
 
 function throttle(fn, limit) {
-  // TODO: implement
-  throw new Error("not implemented");
+ let inCooldown=false;
+ return function(...args){
+  if(!inCooldown){
+    fn.apply(this,args);
+    inCooldown=true;
+    setTimeout(()=>{
+      inCooldown=false;
+    }, limit);
+  }
+  
+ }
 }
 
 module.exports = { throttle };
