@@ -9,13 +9,37 @@
  */
 
 function promiseRace(promisesArray) {
-  // TODO: implement
-  throw new Error("not implemented");
+  return new Promise((resolve, reject) => {
+    promisesArray.forEach((p) => {
+      Promise.resolve(p).then((value) => {
+        resolve(value);
+      }, (reason) => {
+        reject(reason);
+      });
+    });
+  });
 }
 
 function promiseAny(promisesArray) {
-  // TODO (stretch): implement
-  throw new Error("not implemented");
+ return new Promise((resolve, reject) => {
+    let rejectedCount = 0;
+    const errors = [];
+    
+    promisesArray.forEach((p, index) => {
+      Promise.resolve(p).then(
+        (value) => {
+          resolve(value);
+        },
+        (reason) => {
+          errors[index] = reason;
+          rejectedCount++;
+          if (rejectedCount === promisesArray.length) {
+            reject(new AggregateError(errors, "All promises were rejected"));
+          }
+        }
+      );
+    });
+  });
 }
 
 module.exports = { promiseRace, promiseAny };

@@ -7,8 +7,17 @@
  */
 
 function promisify(fn) {
-  // TODO: implement
-  throw new Error("not implemented");
+  return function (...args) {
+    return new Promise((resolve, reject) => {
+      fn(...args, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  };
 }
 
 module.exports = { promisify };

@@ -1,29 +1,61 @@
 const Home = require("../models/home");
 const User = require("../models/user");
 
-exports.getIndex = (req, res, next) => {
+const withTimeout = (promise, ms) => {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Request timed out")), ms)
+  );
+  return Promise.race([promise, timeout]);
+};
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const retryFetch = async (asyncFn, retries, delayMs) => {
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await asyncFn();
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries) {
+        await wait(delayMs);
+      }
+    }
+  }
+  throw lastError;
+};
+
+exports.getIndex = async (req, res, next) => {
   console.log("Session Value: ", req.session);
-  Home.find().then((registeredHomes) => {
+  try {
+    const registeredHomes = await retryFetch(() => Home.find(), 2, 300);
     res.render("store/index", {
       registeredHomes: registeredHomes,
       pageTitle: "airbnb Home",
       currentPage: "index",
-      isLoggedIn: req.isLoggedIn, 
+      isLoggedIn: req.isLoggedIn,
       user: req.session.user,
     });
-  });
+  } catch (err) {
+    console.log("Error loading home page: ", err);
+    res.status(500).send("Something went wrong loading the page. Please try again.");
+  }
 };
 
-exports.getHomes = (req, res, next) => {
-  Home.find().then((registeredHomes) => {
+exports.getHomes = async (req, res, next) => {
+  try {
+    const registeredHomes = await withTimeout(Home.find(), 5000);
     res.render("store/home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Homes List",
       currentPage: "Home",
-      isLoggedIn: req.isLoggedIn, 
+      isLoggedIn: req.isLoggedIn,
       user: req.session.user,
     });
-  });
+  } catch (err) {
+    console.log("Error loading homes: ", err);
+    res.status(500).send("Something went wrong loading homes. Please try again.");
+  }
 };
 
 exports.getBookings = (req, res, next) => {

@@ -10,9 +10,20 @@
  * Simulates retrying a flaky booking/listing API call.
  */
 
-function retryFetch(asyncFn, retries, delayMs) {
-  // TODO: implement
-  throw new Error("not implemented");
+async function retryFetch(asyncFn, retries, delayMs) {
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await asyncFn();
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries) {
+        await wait(delayMs);
+      }
+    }
+  }
+  throw lastError;
 }
 
 module.exports = { retryFetch };

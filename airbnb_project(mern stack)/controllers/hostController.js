@@ -1,6 +1,22 @@
 const Home = require("../models/home");
 const fs = require("fs");
 
+const promisify = (fn) => {
+  return (...args) => {
+    return new Promise((resolve, reject) => {
+      fn(...args, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  };
+};
+
+const unlinkAsync = promisify(fs.unlink);
+
 exports.getAddHome = (req, res, next) => {
   res.render("host/edit-home", {
     pageTitle: "Add Home to airbnb",
@@ -71,39 +87,33 @@ exports.postAddHome = (req, res, next) => {
   res.redirect("/host/host-home-list");
 };
 
-exports.postEditHome = (req, res, next) => {
-  const { id, houseName, price, location, rating, description } =
-    req.body;;
-  Home.findById(id)
-    .then((home) => {
-      home.houseName = houseName;
-      home.price = price;
-      home.location = location;
-      home.rating = rating;
-      home.description = description;
+exports.postEditHome = async (req, res, next) => {
+  const { id, houseName, price, location, rating, description } = req.body;
 
-      if (req.file) {
-        fs.unlink(home.photo, (err) => {
-          if (err) {
-            console.log("Error while deleting file ", err);
-          }
-        });
-        home.photo = req.file.path;
+  try {
+    const home = await Home.findById(id);
+    home.houseName = houseName;
+    home.price = price;
+    home.location = location;
+    home.rating = rating;
+    home.description = description;
+
+    if (req.file) {
+      try {
+        await unlinkAsync(home.photo);
+      } catch (err) {
+        console.log("Error while deleting old photo file ", err);
       }
+      home.photo = req.file.path;
+    }
 
-      home
-        .save()
-        .then((result) => {
-          console.log("Home updated ", result);
-        })
-        .catch((err) => {
-          console.log("Error while updating ", err);
-        });
-      res.redirect("/host/host-home-list");
-    })
-    .catch((err) => {
-      console.log("Error while finding home ", err);
-    });
+    await home.save();
+    console.log("Home updated ", home);
+    res.redirect("/host/host-home-list");
+  } catch (err) {
+    console.log("Error while editing home ", err);
+    res.status(500).send("Something went wrong updating this listing. Please try again.");
+  }
 };
 
 exports.postDeleteHome = (req, res, next) => {
